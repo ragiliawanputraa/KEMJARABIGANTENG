@@ -138,8 +138,6 @@
               loginList.innerHTML = '';
               snapshot.forEach((childSnapshot) => {
                   const login = childSnapshot.val();
-                  const listItem = document.createElement('li');
-                  listItem.textContent = `${login.username} logged in at ${login.timestamp}`;
                   loginList.appendChild(listItem);
               });
           });
