@@ -131,16 +131,6 @@
               document.getElementById('login-count').textContent = count || 0;
           });
 
-          // Update login list
-          const loginsRef = ref(database, 'logins');
-          onValue(loginsRef, (snapshot) => {
-              const loginList = document.getElementById('login-list');
-              loginList.innerHTML = '';
-              snapshot.forEach((childSnapshot) => {
-                  const login = childSnapshot.val();
-                  loginList.appendChild(listItem);
-              });
-          });
       };
     </script>
 </head>
